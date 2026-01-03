@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile - Dayflow HRMS</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <div class="dashboard-layout">
+    <%- include('../partials/sidebar') %>
+
+    <main class="dashboard-main">
+      <div class="page-header">
+        <h1>My Profile</h1>
+        <a href="/employees/profile/edit" class="btn btn-primary">Edit Profile</a>
+      </div>
+
+      <div class="profile-grid">
+        <div class="card profile-card">
+          <div class="profile-avatar">
+            <% if (employee.personalDetails.profilePicture) { %>
+              <img src="<%= employee.personalDetails.profilePicture %>" alt="Profile Picture">
+            <% } else { %>
+              <div class="avatar-placeholder">
+                <% if (employee.personalDetails.firstName && employee.personalDetails.lastName) { %>
+                  <%= employee.personalDetails.firstName.charAt(0) %><%= employee.personalDetails.lastName.charAt(0) %>
+                <% } else { %>
+                  <%= employee.userId.email.charAt(0).toUpperCase() %>
+                <% } %>
+              </div>
+            <% } %>
+          </div>
+          <h2>
+            <% if (employee.personalDetails.firstName && employee.personalDetails.lastName) { %>
+              <%= employee.personalDetails.firstName %> <%= employee.personalDetails.lastName %>
+            <% } else { %>
+              <%= employee.userId.email.split('@')[0] %>
+            <% } %>
+          </h2>
+          <p class="text-muted"><%= employee.jobDetails.position || 'No Position' %></p>
+          <p class="text-muted"><%= employee.userId.email %></p>
+        </div>
+
+        <div class="card">
+          <h3>Personal Information</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Employee ID</label>
+              <p><%= employee.userId.employeeId %></p>
+            </div>
+            <div class="info-item">
+              <label>Email</label>
+              <p><%= employee.userId.email %></p>
+            </div>
+            <% if (employee.personalDetails.firstName || employee.personalDetails.lastName) { %>
+              <div class="info-item">
+                <label>Full Name</label>
+                <p><%= (employee.personalDetails.firstName || '') %> <%= (employee.personalDetails.lastName || '') %></p>
+              </div>
+            <% } %>
+            <div class="info-item">
+              <label>Phone</label>
+              <p><%= employee.personalDetails.phone || 'Not provided' %></p>
+            </div>
+            <div class="info-item">
+              <label>Address</label>
+              <p><%= employee.personalDetails.address || 'Not provided' %></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Job Details</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Position</label>
+              <p><%= employee.jobDetails.position || 'Not assigned' %></p>
+            </div>
+            <div class="info-item">
+              <label>Department</label>
+              <p><%= employee.jobDetails.department || 'Not assigned' %></p>
+            </div>
+            <div class="info-item">
+              <label>Employment Type</label>
+              <p class="badge"><%= employee.jobDetails.employmentType %></p>
+            </div>
+            <div class="info-item">
+              <label>Join Date</label>
+              <p><%= new Date(employee.jobDetails.joinDate).toLocaleDateString() %></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Salary Information</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Base Salary</label>
+              <p class="salary-amount">$<%= (employee.salaryDetails.baseSalary || 0).toLocaleString() %></p>
+            </div>
+            <div class="info-item">
+              <label>Allowances</label>
+              <p class="salary-amount">$<%= (employee.salaryDetails.allowances || 0).toLocaleString() %></p>
+            </div>
+            <div class="info-item">
+              <label>Deductions</label>
+              <p class="salary-amount">$<%= (employee.salaryDetails.deductions || 0).toLocaleString() %></p>
+            </div>
+            <div class="info-item">
+              <label>Net Salary</label>
+              <p class="salary-amount total">$<%= ((employee.salaryDetails.baseSalary || 0) + (employee.salaryDetails.allowances || 0) - (employee.salaryDetails.deductions || 0)).toLocaleString() %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <script src="/js/theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Dayflow HRMS</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <div class="dashboard-layout">
+    <%- include('../partials/sidebar') %>
+
+    <main class="dashboard-main">
+      <div class="page-header">
+        <div>
+          <h1>Welcome back, <%= employee.personalDetails?.firstName || (employee.userId?.email ? employee.userId.email.split('@')[0] : 'Employee') %>!</h1>
+          <p class="text-muted">Here's your work overview</p>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <a href="/employees/profile" class="dashboard-card card">
+          <div class="card-icon" style="background: var(--brand-light); color: var(--brand-primary);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <h3>My Profile</h3>
+          <p class="text-muted">View and edit your profile</p>
+        </a>
+
+        <a href="/attendance" class="dashboard-card card">
+          <div class="card-icon" style="background: var(--success-light); color: var(--success);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <h3>Attendance</h3>
+          <p class="text-muted">Track your attendance</p>
+        </a>
+
+        <a href="/leave" class="dashboard-card card">
+          <div class="card-icon" style="background: var(--warning-light); color: var(--warning);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <h3>Leave Requests</h3>
+          <p class="text-muted"><%= pendingLeaves.length %> pending</p>
+        </a>
+      </div>
+
+      <div class="card mt-3">
+        <h3>Recent Attendance</h3>
+        <% if (recentAttendance.length === 0) { %>
+          <p class="text-muted">No attendance records yet</p>
+        <% } else { %>
+          <div class="attendance-list">
+            <% recentAttendance.slice(0, 5).forEach(att => { %>
+              <div class="attendance-item">
+                <div>
+                  <strong><%= new Date(att.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) %></strong>
+                  <% if (att.checkIn) { %>
+                    <p class="text-muted">
+                      <%= new Date(att.checkIn).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) %>
+                      <% if (att.checkOut) { %>
+                        - <%= new Date(att.checkOut).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) %>
+                      <% } %>
+                    </p>
+                  <% } %>
+                </div>
+                <span class="badge badge-status-<%= att.status %>"><%= att.status %></span>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </main>
+  </div>
+
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <script src="/js/theme.js"></script>
+</body>
+</html>

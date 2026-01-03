@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leave Management - Dayflow HRMS</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <div class="dashboard-layout">
+    <main class="dashboard-main">
+      <div class="page-header">
+        <h1>Leave Management</h1>
+        <div class="badge"><%= pendingCount %> Pending</div>
+      </div>
+
+      <div class="filter-tabs">
+        <a href="/leave/admin" class="filter-tab <%= filterStatus === 'all' ? 'active' : '' %>">All</a>
+        <a href="/leave/admin?status=pending" class="filter-tab <%= filterStatus === 'pending' ? 'active' : '' %>">Pending</a>
+        <a href="/leave/admin?status=approved" class="filter-tab <%= filterStatus === 'approved' ? 'active' : '' %>">Approved</a>
+        <a href="/leave/admin?status=rejected" class="filter-tab <%= filterStatus === 'rejected' ? 'active' : '' %>">Rejected</a>
+      </div>
+
+      <div class="card">
+        <% if (leaves.length === 0) { %>
+          <div class="text-center" style="padding: 3rem;">
+            <p class="text-muted">No leave requests found</p>
+          </div>
+        <% } else { %>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th>Type</th>
+                  <th>Duration</th>
+                  <th>Days</th>
+                  <th>Reason</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% leaves.forEach(leave => { 
+                  const days = Math.ceil((new Date(leave.endDate) - new Date(leave.startDate)) / (1000 * 60 * 60 * 24)) + 1;
+                  const firstName = leave.employeeId?.personalDetails?.firstName || leave.employeeId?.userId?.email?.split('@')[0] || 'Unknown';
+                  const lastName = leave.employeeId?.personalDetails?.lastName || '';
+                  const initials = firstName.charAt(0) + (lastName ? lastName.charAt(0) : '');
+                %>
+                  <tr>
+                    <td>
+                      <div class="employee-name">
+                        <div class="avatar-sm">
+                          <%= initials %>
+                        </div>
+                        <%= firstName %> <%= lastName %>
+                      </div>
+                    </td>
+                    <td><span class="badge badge-<%= leave.leaveType %>"><%= leave.leaveType %></span></td>
+                    <td>
+                      <%= new Date(leave.startDate).toLocaleDateString() %><br>
+                      <small class="text-muted">to <%= new Date(leave.endDate).toLocaleDateString() %></small>
+                    </td>
+                    <td><%= days %> day<%= days > 1 ? 's' : '' %></td>
+                    <td><%= leave.reason %></td>
+                    <td>
+                      <span class="badge badge-status-<%= leave.status %>"><%= leave.status %></span>
+                    </td>
+                    <td>
+                      <% if (leave.status === 'pending') { %>
+                        <button onclick="reviewLeave('<%= leave._id %>', 'approved')" class="btn btn-sm btn-success">Approve</button>
+                        <button onclick="reviewLeave('<%= leave._id %>', 'rejected')" class="btn btn-sm btn-danger">Reject</button>
+                      <% } else { %>
+                        <span class="text-muted">-</span>
+                      <% } %>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </main>
+  </div>
+
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/leave.js"></script>
+</body>
+</html>

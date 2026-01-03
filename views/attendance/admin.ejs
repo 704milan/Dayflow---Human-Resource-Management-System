@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Records - Dayflow HRMS</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/attendance.css">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <div class="dashboard-layout">
+    <main class="dashboard-main">
+      <div class="page-header">
+        <div>
+          <h1>Attendance Records</h1>
+          <p class="text-muted">View and manage employee attendance</p>
+        </div>
+        <div class="header-actions">
+          <input type="date" id="dateFilter" class="date-input" value="<%= selectedDate.toISOString().split('T')[0] %>" onchange="filterByDate(this.value)">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="attendance-table-wrapper">
+          <table class="attendance-table">
+            <thead>
+              <tr>
+                <th>Employee ID</th>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Check In</th>
+                <th>Check Out</th>
+                <th>Work Hours</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (attendance.length === 0) { %>
+                <tr>
+                  <td colspan="8" style="text-align: center; padding: 2rem;">
+                    No attendance records found for this date
+                  </td>
+                </tr>
+              <% } else { %>
+                <% attendance.forEach(record => { %>
+                  <% 
+                    let workHours = 0;
+                    let extraHours = 0;
+                    if (record.checkIn && record.checkOut) {
+                      const checkInTime = new Date(record.checkIn);
+                      const checkOutTime = new Date(record.checkOut);
+                      const diffMs = checkOutTime - checkInTime;
+                      const totalHours = diffMs / (1000 * 60 * 60);
+                      workHours = Math.min(totalHours, 8);
+                      extraHours = Math.max(0, totalHours - 8);
+                    }
+                  %>
+                  <tr>
+                    <td><%= record.employeeId?.userId?.employeeId || 'N/A' %></td>
+                    <td>
+                      <%= record.employeeId?.personalDetails?.firstName || '' %> 
+                      <%= record.employeeId?.personalDetails?.lastName || '' %>
+                      <% if (!record.employeeId?.personalDetails?.firstName) { %>
+                        <%= record.employeeId?.userId?.email?.split('@')[0] || 'Unknown' %>
+                      <% } %>
+                    </td>
+                    <td><%= new Date(record.date).toLocaleDateString() %></td>
+                    <td>
+                      <% if (record.checkIn) { %>
+                        <%= new Date(record.checkIn).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) %>
+                      <% } else { %>
+                        -
+                      <% } %>
+                    </td>
+                    <td>
+                      <% if (record.checkOut) { %>
+                        <%= new Date(record.checkOut).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) %>
+                      <% } else { %>
+                        -
+                      <% } %>
+                    </td>
+                    <td>
+                      <% if (record.checkIn && record.checkOut) { %>
+                        <strong><%= workHours.toFixed(2) %>h</strong>
+                        <% if (extraHours > 0) { %>
+                          <span style="color: var(--success); font-size: 0.875rem;">
+                            +<%= extraHours.toFixed(2) %>h extra
+                          </span>
+                        <% } %>
+                      <% } else { %>
+                        -
+                      <% } %>
+                    </td>
+                    <td>
+                      <% if (record.status === 'present') { %>
+                        <span class="status-badge status-present">🟢 Present</span>
+                      <% } else if (record.status === 'on-leave') { %>
+                        <span class="status-badge status-on-leave">✈️ On Leave</span>
+                      <% } else if (record.status === 'absent') { %>
+                        <span class="status-badge status-absent">🟡 Absent</span>
+                      <% } else { %>
+                        <span class="status-badge status-<%= record.status %>"><%= record.status %></span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <div class="action-buttons">
+                        <select class="status-select" onchange="updateStatus('<%= record._id %>', this.value)">
+                          <option value="present" <%= record.status === 'present' ? 'selected' : '' %>>🟢 Present</option>
+                          <option value="on-leave" <%= record.status === 'on-leave' ? 'selected' : '' %>>✈️ On Leave</option>
+                          <option value="absent" <%= record.status === 'absent' ? 'selected' : '' %>>🟡 Absent</option>
+                        </select>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <script src="/js/theme.js"></script>
+  <script>
+    function filterByDate(date) {
+      window.location.href = `/attendance/admin?date=${date}`;
+    }
+
+    async function updateStatus(id, status) {
+      try {
+        const response = await fetch(`/attendance/${id}/update`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status }),
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          location.reload();
+        } else {
+          alert('Failed to update status');
+        }
+      } catch (error) {
+        console.error('Error updating status:', error);
+        alert('Error updating status');
+      }
+    }
+  </script>
+</body>
+</html>

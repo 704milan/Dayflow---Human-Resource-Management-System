@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance - Dayflow HRMS</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/attendance.css">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <div class="dashboard-layout">
+    <main class="dashboard-main">
+      <div class="page-header">
+        <h1>My Attendance</h1>
+      </div>
+
+      <div class="attendance-actions card">
+        <div class="action-buttons">
+          <% if (!todayAttendance) { %>
+            <button onclick="checkIn()" class="btn btn-success">Check In</button>
+          <% } else if (!todayAttendance.checkOut) { %>
+            <button onclick="checkOut()" class="btn btn-danger">Check Out</button>
+            <p class="check-time">Checked in at: <%= new Date(todayAttendance.checkIn).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) %></p>
+          <% } else { %>
+            <div class="status-badge checked-in">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+              <span>Completed for today</span>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 1.5rem;">
+          <%= new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) %>
+        </h3>
+        
+        <div class="table-container">
+          <table class="data-table attendance-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Check In</th>
+                <th>Check Out</th>
+                <th>Work Hours</th>
+                <th>Extra Hours</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% 
+                const STANDARD_HOURS = 8;
+                
+                if (attendance && attendance.length > 0) {
+                  attendance.forEach(record => {
+                    let workHours = 0;
+                    let extraHours = 0;
+                    
+                    if (record.checkIn && record.checkOut) {
+                      const checkInTime = new Date(record.checkIn);
+                      const checkOutTime = new Date(record.checkOut);
+                      const diffMs = checkOutTime - checkInTime;
+                      const diffHours = diffMs / (1000 * 60 * 60);
+                      
+                      workHours = Math.min(diffHours, STANDARD_HOURS);
+                      extraHours = Math.max(0, diffHours - STANDARD_HOURS);
+                    }
+              %>
+              <tr>
+                <td><%= new Date(record.date).toLocaleDateString('en-GB') %></td>
+                <td>
+                  <% if (record.checkIn) { %>
+                    <%= new Date(record.checkIn).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) %>
+                  <% } else { %>
+                    -
+                  <% } %>
+                </td>
+                <td>
+                  <% if (record.checkOut) { %>
+                    <%= new Date(record.checkOut).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) %>
+                  <% } else { %>
+                    -
+                  <% } %>
+                </td>
+                <td>
+                  <% if (workHours > 0) { %>
+                    <%= workHours.toFixed(2) %>
+                  <% } else { %>
+                    -
+                  <% } %>
+                </td>
+                <td>
+                  <% if (extraHours > 0) { %>
+                    <span style="color: var(--success); font-weight: 600;"><%= extraHours.toFixed(2) %></span>
+                  <% } else { %>
+                    -
+                  <% } %>
+                </td>
+              </tr>
+              <% }); %>
+              <% } else { %>
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                  No attendance records found
+                </td>
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/attendance.js"></script>
+</body>
+</html>

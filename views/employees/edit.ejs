@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Employee - Dayflow HRMS</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <div class="dashboard-layout">
+    <main class="dashboard-main" style="margin-left: 0;">
+      <div class="page-header">
+        <h1>Edit Employee</h1>
+        <a href="/employees/<%= employee._id %>" class="btn btn-secondary">Cancel</a>
+      </div>
+
+      <div class="card">
+        <form method="POST" action="/employees/<%= employee._id %>/edit">
+          <% if (error) { %>
+            <div class="alert alert-error"><%= error %></div>
+          <% } %>
+
+          <h3>Personal Information</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="firstName">First Name</label>
+              <input type="text" id="firstName" name="firstName" value="<%= employee.personalDetails.firstName || '' %>" required>
+            </div>
+
+            <div class="form-group">
+              <label for="lastName">Last Name</label>
+              <input type="text" id="lastName" name="lastName" value="<%= employee.personalDetails.lastName || '' %>" required>
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" name="phone" value="<%= employee.personalDetails.phone || '' %>">
+            </div>
+
+            <div class="form-group">
+              <label for="address">Address</label>
+              <input type="text" id="address" name="address" value="<%= employee.personalDetails.address || '' %>">
+            </div>
+          </div>
+
+          <h3 style="margin-top: 2rem;">Job Details</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="position">Position</label>
+              <input type="text" id="position" name="position" value="<%= employee.jobDetails.position || '' %>" required>
+            </div>
+
+            <div class="form-group">
+              <label for="department">Department</label>
+              <select id="department" name="department" required>
+                <option value="Engineering" <%= employee.jobDetails.department === 'Engineering' ? 'selected' : '' %>>Engineering</option>
+                <option value="HR" <%= employee.jobDetails.department === 'HR' ? 'selected' : '' %>>HR</option>
+                <option value="Sales" <%= employee.jobDetails.department === 'Sales' ? 'selected' : '' %>>Sales</option>
+                <option value="Marketing" <%= employee.jobDetails.department === 'Marketing' ? 'selected' : '' %>>Marketing</option>
+                <option value="Finance" <%= employee.jobDetails.department === 'Finance' ? 'selected' : '' %>>Finance</option>
+                <option value="Operations" <%= employee.jobDetails.department === 'Operations' ? 'selected' : '' %>>Operations</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="employmentType">Employment Type</label>
+              <select id="employmentType" name="employmentType" required>
+                <option value="full-time" <%= employee.jobDetails.employmentType === 'full-time' ? 'selected' : '' %>>Full Time</option>
+                <option value="part-time" <%= employee.jobDetails.employmentType === 'part-time' ? 'selected' : '' %>>Part Time</option>
+                <option value="contract" <%= employee.jobDetails.employmentType === 'contract' ? 'selected' : '' %>>Contract</option>
+                <option value="intern" <%= employee.jobDetails.employmentType === 'intern' ? 'selected' : '' %>>Intern</option>
+              </select>
+            </div>
+          </div>
+
+          <h3 style="margin-top: 2rem;">Salary Information</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="baseSalary">Base Salary ($)</label>
+              <input type="number" id="baseSalary" name="baseSalary" value="<%= employee.salaryDetails.baseSalary || 0 %>" min="0" step="1000" required>
+            </div>
+
+            <div class="form-group">
+              <label for="allowances">Allowances ($)</label>
+              <input type="number" id="allowances" name="allowances" value="<%= employee.salaryDetails.allowances || 0 %>" min="0" step="100">
+            </div>
+
+            <div class="form-group">
+              <label for="deductions">Deductions ($)</label>
+              <input type="number" id="deductions" name="deductions" value="<%= employee.salaryDetails.deductions || 0 %>" min="0" step="100">
+            </div>
+          </div>
+
+          <div class="form-actions" style="margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="/employees/<%= employee._id %>" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <script src="/js/theme.js"></script>
+</body>
+</html>
